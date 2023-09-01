@@ -1,0 +1,43 @@
+version: '3.3'
+services:
+  typebot-db:
+    image: postgres:13
+    restart: always
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=typebot
+      - POSTGRES_PASSWORD=typebot
+  typebot-builder:
+    image: baptistearno/typebot-builder:latest
+    restart: always
+    depends_on:
+      - typebot-db
+    ports:
+      - '8083:3000'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    # See https://docs.typebot.io/self-hosting/configuration/builder for more configuration options
+    environment:
+      - DATABASE_URL=postgresql://postgres:typebot@typebot-db:5432/typebot
+      - NEXTAUTH_URL=https:ppedrojas.gsmserver.tk
+      - NEXT_PUBLIC_VIEWER_URL=https://jeanna2.gsmserver.tk
+      - ENCRYPTION_SECRET=vynv04JqbNFwezIivBKEP3dkteo2ytcd
+      - ADMIN_EMAIL=masterhostblack@gmail.com
+      - GITHUB_CLIENT_ID=fba61aa470fc341e8a72
+      - GITHUB_CLIENT_SECRET=b6f410638bbb9ef886ee964a29b75b3e5641ecae
+  typebot-viewer:
+    image: baptistearno/typebot-viewer:latest
+    restart: always
+    ports:
+      - '8084:3000'
+    # See https://docs.typebot.io/self-hosting/configuration/viewer for more configuration options
+    environment:
+      - DATABASE_URL=postgresql://postgres:typebot@typebot-db:5432/typebot
+      - NEXT_PUBLIC_VIEWER_URL=https://jeanna2.gsmserver.tk
+      - ENCRYPTION_SECRET=vynv04JqbNFwezIivBKEP3dkteo2ytcd
+      - NEXTAUTH_URL=https://ppedrojas.gsmserver.tk
+      - GITHUB_CLIENT_ID=fba61aa470fc341e8a72
+      - GITHUB_CLIENT_SECRET=b6f410638bbb9ef886ee964a29b75b3e5641ecae
+volumes:
+  db_data:
